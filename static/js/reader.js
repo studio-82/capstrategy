@@ -548,7 +548,7 @@ window.__actions = {
 
 async function boot(fresh = true) {
   if (fresh) {
-    const issueUrl = STATIC_SITE ? 'data/issue.json?v=cap-manual-4' : 'api/issue';
+    const issueUrl = STATIC_SITE ? 'data/issue.json?v=cover-title-5' : 'api/issue';
     const data = await fetch(issueUrl, STATIC_SITE ? { cache: 'no-store' } : {}).then(r => r.json());
     const local = loadLocal();
     Object.assign(S, {
