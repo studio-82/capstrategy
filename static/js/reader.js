@@ -545,7 +545,8 @@ window.__actions = {
 
 async function boot(fresh = true) {
   if (fresh) {
-    const data = await fetch(STATIC_SITE ? 'data/issue.json' : 'api/issue').then(r => r.json());
+    const issueUrl = STATIC_SITE ? 'data/issue.json?v=opening-2' : 'api/issue';
+    const data = await fetch(issueUrl, STATIC_SITE ? { cache: 'no-store' } : {}).then(r => r.json());
     const local = loadLocal();
     Object.assign(S, {
       pages: data.pages, sources: data.sources, plates: data.plates,
