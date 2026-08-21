@@ -1,6 +1,6 @@
 /* ==========================================================================
    THE READER
-   Spread-based paging over a 250-page issue. Active state (the spread you are
+   Spread-based paging over the full issue. Active state (the spread you are
    on, the rail, the search string, the instrument's draft text) is queryable
    and restorable so a reload never costs you your place.
    ========================================================================== */
@@ -40,7 +40,7 @@ function saveLocal() {
 
 function plainText(value) {
   const node = document.createElement('div');
-  node.innerHTML = String(value || '');
+  node.innerHTML = String(value || '').replace(/<br\s*\/?>/gi, ' ');
   return (node.textContent || '').replace(/\s+/g, ' ').trim();
 }
 
@@ -221,7 +221,7 @@ function renderPage(pg, side) {
   const twoCol = pg.kind === 'text' && !pg.body.some(b =>
     ['chart', 'diagram', 'table', 'tear', 'instrument', 'pull'].includes(b.t));
   return `<article class="page page--${side} ${kindClass}" data-folio="${pg.folio}">
-    ${bare ? '' : `<div class="page__head"><span>${esc(pg.chapter || pg.part || '')}</span>
+    ${bare ? '' : `<div class="page__head"><span>${esc(plainText(pg.chapter || pg.part || ''))}</span>
         <span>${esc(pg.part_no ? 'Part ' + pg.part_no : 'The Plain English Issue')}</span></div>`}
     ${bare ? inner : `<div class="page__scroll ${twoCol ? 'cols' : ''}">${inner}</div>`}
     ${bare ? '' : `<div class="page__rule"></div><div class="page__folio">${pg.folio}</div>`}
@@ -247,7 +247,7 @@ function paint(animate = true) {
     wireSpread();
     const label = (r || l);
     $('running').textContent = label
-      ? `${label.part_no ? 'PT ' + label.part_no + ' · ' : ''}${(label.chapter || label.part || '').toUpperCase()} · ${l ? l.folio + '–' : ''}${(r || l).folio} / ${S.pages.length}`
+      ? `${label.part_no ? 'PT ' + label.part_no + ' · ' : ''}${plainText(label.chapter || label.part || '').toUpperCase()} · ${l ? l.folio + '–' : ''}${(r || l).folio} / ${S.pages.length}`
       : '';
     $('btn-mark').setAttribute('aria-pressed', S.marks.some(m => spreadOf(m.folio) === S.spread));
     save();
@@ -335,6 +335,9 @@ function go(n) {
   if (S.flow) {
     const el = document.querySelector(`[data-spread="${S.spread}"]`);
     if (el) el.scrollIntoView({ block: 'start' });
+    const [left, right] = spreadFor(S.spread);
+    const current = right || left;
+    if (current) $('running').textContent = plainText(current.chapter || current.part || 'Plain English');
     save();
   } else paint();
 }
@@ -363,7 +366,7 @@ function drawRail() {
     railBody.innerHTML = S.marks.length ? S.marks.map(m => {
       const pg = S.pages.find(p => p.folio === m.folio);
       return `<button class="rail__item" data-folio="${m.folio}"><span class="n">${m.folio}</span>
-        <span class="t">${esc(pg ? (pg.title || pg.chapter || '') : '')}<small>${esc(pg ? pg.part : '')}</small></span></button>`;
+        <span class="t">${esc(pg ? plainText(pg.title || pg.chapter || '') : '')}<small>${esc(pg ? plainText(pg.part) : '')}</small></span></button>`;
     }).join('') : '<div class="rail__empty">No marks yet. Press B on any spread.</div>';
     return wireRail();
   }
@@ -378,7 +381,7 @@ function drawRail() {
     if (!isChapterHead) return;
     html += `<button class="rail__item ${spreadOf(pg.folio) === S.spread ? 'current' : ''}"
       data-folio="${pg.folio}"><span class="n">${pg.folio}</span>
-      <span class="t">${esc(pg.title || pg.chapter)}${pg.eyebrow ? `<small>${esc(pg.eyebrow)}</small>` : ''}</span></button>`;
+      <span class="t">${esc(plainText(pg.title || pg.chapter))}${pg.eyebrow ? `<small>${esc(plainText(pg.eyebrow))}</small>` : ''}</span></button>`;
   });
   railBody.innerHTML = html;
   wireRail();
@@ -407,7 +410,7 @@ async function drawSearch() {
     : (await fetch('api/search?q=' + encodeURIComponent(q)).then(r => r.json())).results;
   railBody.innerHTML = results.length ? results.map(r =>
     `<button class="rail__item" data-folio="${r.folio}"><span class="n">${r.folio}</span>
-      <span class="t">${esc(r.title || r.chapter || '')}<small>${esc(r.excerpt)}</small></span></button>`).join('')
+      <span class="t">${esc(plainText(r.title || r.chapter || ''))}<small>${esc(r.excerpt)}</small></span></button>`).join('')
     : '<div class="rail__empty">Nothing found.</div>';
   wireRail();
 }
@@ -537,7 +540,7 @@ window.__actions = {
   listChapters: {
     description: 'Return every chapter with its opening folio.', params: {},
     execute: () => S.pages.filter(p => p.kind === 'part' || (p.chapter && p.title === p.chapter))
-      .map(p => ({ folio: p.folio, part: p.part, title: p.title })),
+      .map(p => ({ folio: p.folio, part: plainText(p.part), title: plainText(p.title) })),
   },
 };
 
@@ -545,7 +548,7 @@ window.__actions = {
 
 async function boot(fresh = true) {
   if (fresh) {
-    const issueUrl = STATIC_SITE ? 'data/issue.json?v=opening-2' : 'api/issue';
+    const issueUrl = STATIC_SITE ? 'data/issue.json?v=cap-manual-4' : 'api/issue';
     const data = await fetch(issueUrl, STATIC_SITE ? { cache: 'no-store' } : {}).then(r => r.json());
     const local = loadLocal();
     Object.assign(S, {
@@ -592,7 +595,7 @@ stage.addEventListener('scroll', () => {
       const [, right] = spreadFor(S.spread);
       const left = spreadFor(S.spread)[0];
       const current = right || left;
-      if (current) $('running').textContent = current.chapter || current.part || 'Plain English';
+      if (current) $('running').textContent = plainText(current.chapter || current.part || 'Plain English');
     }
     save();
   }, 120);
