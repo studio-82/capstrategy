@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cap Strategy — private credit, made legible</title>
+<meta name="description" content="A complete marketing and messaging strategy for Cap, with chapters, case studies, working papers, sources, and practical tools.">
+<link rel="canonical" href="https://capstrategy.s82.studio/">
+<link rel="stylesheet" href="static/css/press.css?v=website-3">
+</head>
+<body class="site-mode" data-palette="#c0392b,#1e88a8,#d89b0a,#2e7d4f,#8e5bb5,#b3541e">
+
+<header class="bar">
+  <a class="bar__brand" href="#" aria-label="Plain English home">Plain <b>English</b></a>
+  <button id="btn-contents" aria-label="Explore chapters">Chapters</button>
+  <span class="bar__spacer"></span>
+  <span class="bar__folio" id="running">Introduction</span>
+  <button id="btn-search" aria-label="Search the site">Search <kbd>/</kbd></button>
+  <button class="reader-legacy" id="btn-mark" aria-label="Bookmark this section">Mark</button>
+  <button class="reader-legacy" id="btn-flow" aria-pressed="true" aria-label="Continuous reading">Flow</button>
+</header>
+
+<main class="stage" id="stage">
+  <button class="reader-legacy" id="prev" aria-label="Previous section"></button>
+  <div class="spread" id="spread"></div>
+  <button class="reader-legacy" id="next" aria-label="Next section"></button>
+
+  <div class="scrim" id="scrim"></div>
+  <nav class="rail" id="rail" aria-label="Contents and search">
+    <div class="rail__head"><span id="rail-title">Contents</span><button id="rail-close">✕</button></div>
+    <div class="rail__search">
+      <span style="color:#6a6254;font-family:var(--data);font-size:12px">⌕</span>
+      <input id="q" type="search" placeholder="Search ideas, cases and tools…" autocomplete="off">
+    </div>
+    <div class="rail__body" id="rail-body"></div>
+  </nav>
+</main>
+
+<script>window.__STATIC_SITE__ = true;</script>
+<script src="static/js/plates.js?v=website-4"></script>
+<script src="static/js/reader.js?v=website-4"></script>
+</body>
+</html>
